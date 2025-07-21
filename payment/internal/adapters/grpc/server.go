@@ -5,9 +5,9 @@ import (
 	"log"
 	"net"
 
-	"github.com/nihatalim/grpc-clients/golang/order"
-	"github.com/nihatalim/grpc-services/order/config"
-	"github.com/nihatalim/grpc-services/order/internal/ports"
+	"github.com/nihatalim/grpc-clients/golang/payment"
+	"github.com/nihatalim/grpc-services/payment/config"
+	"github.com/nihatalim/grpc-services/payment/internal/ports"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -16,14 +16,11 @@ type Adapter struct {
 	api    ports.APIPort
 	port   int
 	server *grpc.Server
-	order.UnimplementedOrderServer
+	payment.UnimplementedPaymentServer
 }
 
-func NewAdapter(port int, api ports.APIPort) *Adapter {
-	return &Adapter{
-		api:  api,
-		port: port,
-	}
+func NewAdapter(api ports.APIPort, port int) *Adapter {
+	return &Adapter{api: api, port: port}
 }
 
 func (a Adapter) Run() {
@@ -36,14 +33,14 @@ func (a Adapter) Run() {
 
 	grpcServer := grpc.NewServer()
 	a.server = grpcServer
-	order.RegisterOrderServer(grpcServer, a)
+	payment.RegisterPaymentServer(grpcServer, a)
 	if config.GetEnv() == "development" {
 		reflection.Register(grpcServer)
 	}
 
-	log.Printf("starting order service on port %d ...", a.port)
+	log.Printf("starting payment service on port %d ...", a.port)
 	if err := grpcServer.Serve(listen); err != nil {
-		log.Fatalf("failed to serve grpc on port %d", a.port)
+		log.Fatalf("failed to serve grpc on port ")
 	}
 }
 

@@ -12,13 +12,20 @@ type Application struct {
 	payment ports.PaymentPort
 }
 
+func NewApplication(db ports.DBPort, payment ports.PaymentPort) *Application {
+	return &Application{
+		db:      db,
+		payment: payment,
+	}
+}
+
 func (a Application) PlaceOrder(ctx context.Context, order domain.Order) (domain.Order, error) {
-	err := a.db.Save(ctx, &order)
+	err := a.payment.Charge(ctx, &order)
 	if err != nil {
 		return order, err
 	}
 
-	err = a.payment.Charge(ctx, &order)
+	err = a.db.Save(ctx, &order)
 	if err != nil {
 		return order, err
 	}

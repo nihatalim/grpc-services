@@ -11,6 +11,10 @@ type Adapter struct {
 	payment payment.PaymentClient
 }
 
+func NewAdapter(paymentServiceUrl string) *Adapter {
+	return &Adapter{}
+}
+
 func (a Adapter) Charge(context.Context, *domain.Order) error {
 	return nil
 }
